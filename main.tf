@@ -8,26 +8,6 @@ locals {
   ansible_inventory = "/tmp/${uuid()}_ansible.cfg"
 }
 
-resource "null_resource" "copy_ansible_playbooks" {
-  triggers = {
-    timestamp = "${timestamp()}"
-  }
-
-  connection {
-    type        = "ssh"
-    host        = "${var.bastion_ip_address}"
-    user        = "${var.ssh_username}"
-    private_key = "${var.ssh_private_key}"
-    password    = "${var.ssh_password}"
-  }
-
-  provisioner "file" {
-    when = "create"
-    source = "${path.module}/playbooks"
-    destination = "~"
-  }
-}
-
 data "template_file" "ansible_inventory" {
   template = <<EOF
 [ansible:children]
