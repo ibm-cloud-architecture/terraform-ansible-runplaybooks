@@ -12,6 +12,7 @@ data "template_file" "ansible_inventory" {
   template = <<EOF
 [ansible:children]
 bastion
+masters
 nodes
 
 [ansible:vars]
@@ -22,6 +23,9 @@ ${join("\n", formatlist("%v", var.ansible_vars))}
 
 [bastion]
 ${join("\n", formatlist("%v ansible_host=%v", var.bastion_hostname, var.bastion_private_ip))}
+
+[masters]
+${join("\n", formatlist("%v ansible_host=%v", var.master_hostname, var.master_private_ip))}
 
 [nodes]
 ${join("\n", formatlist("%v ansible_host=%v", var.master_hostname, var.master_private_ip))}
@@ -69,7 +73,7 @@ resource "null_resource" "run_playbook" {
     inline = [
       "set -ex",
       "ansible-playbook -i ${local.ansible_inventory} ${element(var.ansible_playbooks, count.index)}",
-      "rm ${local.ansible_inventory}"
+      "# rm ${local.ansible_inventory}"
     ]
   }
   depends_on = [
