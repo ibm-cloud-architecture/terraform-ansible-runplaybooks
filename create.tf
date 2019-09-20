@@ -47,9 +47,9 @@ resource "null_resource" "install_ansible" {
       "chmod u+x /tmp/ansible_chroot.sh",
       "if which ansible; then exit 0; fi",
       # the fun begins here
+      "set -x",
       "sudo mkdir -p /tmp/ansible_chroot/var/lib/rpm",
-      "while ! yum --installroot=/tmp/ansible_chroot list installed centos-release; do wget -r -l1 -np -nd http://mirror.centos.org/centos/7/os/x86_64/Packages/ -P /tmp -A 'centos-release-7*.rpm'; done",
-      "while ! yum --installroot=/tmp/ansible_chroot list installed centos-release; do sudo yum --installroot=/tmp/ansible_chroot -y install /tmp/centos-release-*.rpm; rm -rf /tmp/centos-release*.rpm; done",
+      "while ! yum --installroot=/tmp/ansible_chroot list installed centos-release; do wget -r -l1 -np -nd http://mirror.centos.org/centos/7/os/x86_64/Packages/ -P /tmp -A 'centos-release-7*.rpm'; sudo yum --installroot=/tmp/ansible_chroot -y install /tmp/centos-release-*.rpm; rm -rf /tmp/centos-release*.rpm; done",
       "while ! yum --installroot=/tmp/ansible_chroot list installed epel-release; do sudo yum install --installroot=/tmp/ansible_chroot -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm; done",
       "sudo rpm --root=/tmp/ansible_chroot --import https://www.centos.org/keys/RPM-GPG-KEY-CentOS-7",
       "sudo rpm --root=/tmp/ansible_chroot --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7",
