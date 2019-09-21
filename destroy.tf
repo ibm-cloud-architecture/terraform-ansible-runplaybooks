@@ -1,7 +1,7 @@
 # playbooks run on destroy. the dependencies are backward, so they run forward on destroy.
 # but make sure none of these resources run commands on create
 resource "null_resource" "cleanup_destroy" {
-  count = "${length(var.ansible_playbooks_destroy) > 0 ? 1 : 0}"
+  count = "${length(var.ansible_playbooks_destroy) > 0 ? "${var.cleanup ? 1 : 0}" : 0}"
  
   depends_on = [
     "null_resource.dependency"

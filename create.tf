@@ -136,18 +136,17 @@ resource "null_resource" "copy_ansible_playbook" {
 
 data "template_file" "ansible_inventory" {
   template = <<EOF
-[ansible:children]
-nodes
+[nodes]
+${join("\n", formatlist("%v ansible_host=%v", var.node_hostnames, var.node_ips))}
 
-[ansible:vars]
+[nodes:vars]
 ansible_ssh_user=${var.ssh_user}
 ${var.ssh_user == "root" ? "" : "ansible_become=true"}
-${var.ssh_private_key == ""? "" : "ansible_ssh_private_key_file=${local.ssh_key}"}
+${var.ssh_private_key == "" ? "" : "ansible_ssh_private_key_file=${local.ssh_key}"}
+${var.ssh_password == "" ? "" : "ansible_ssh_pass=${var.ssh_password}"}
 ansible_ssh_common_args='-o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=60s'
 ${join("\n", formatlist("%v=%v", keys(var.ansible_vars), values(var.ansible_vars)))}
 
-[nodes]
-${join("\n", formatlist("%v ansible_host=%v", var.node_hostnames, var.node_ips))}
 EOF
 }
 
@@ -218,6 +217,7 @@ resource "null_resource" "run_playbook_create" {
 
 
 resource "null_resource" "cleanup" {
+  count = "${var.cleanup ? 1 : 0}"
   # clean up the playbooks and stuff
   triggers = {
     triggerson = "${join(",", formatlist("%v=%v", keys(var.triggerson), values(var.triggerson)))}"

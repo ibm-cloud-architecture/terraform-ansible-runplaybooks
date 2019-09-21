@@ -82,3 +82,8 @@ variable "ansible_verbosity" {
   description = "for more debug, add -vv"
   default = ""
 }
+
+variable "cleanup" {
+  description = "for debugging, set to false to leave the playbooks there on success"
+  default = true
+}
