@@ -2,5 +2,5 @@ output "module_completed" {
     value = "${join(",", concat(
         null_resource.run_playbook_create.*.id, 
         null_resource.run_playbook_destroy.*.id, 
-        list(null_resource.cleanup.id)))}"
+        null_resource.cleanup.*.id))}"
 }
