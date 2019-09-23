@@ -13,7 +13,7 @@ locals {
   playbook_dir = "/tmp/playbook_${local.myid}"
   ansible_inventory = "/tmp/playbook_${local.myid}/ansible.cfg"
   ssh_key = "/tmp/playbook_${local.myid}/ssh_key"
-  triggerson = "${length(var.triggerson) != 0 ? "${join(",", formatlist("%v=%v", keys(var.triggerson), values(var.triggerson)))}" : "${join(",", formatlist("%v=%v", "timestamp", timestamp()))}" }"
+  triggerson = "${length(var.triggerson) != 0 ? "${join(",", formatlist("%v=%v", keys(var.triggerson), values(var.triggerson)))}" : "${format("%v=%v", "timestamp", timestamp())}" }"
 }
 
 data "template_file" "playbook_full_path" {
