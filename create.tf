@@ -50,8 +50,8 @@ resource "null_resource" "install_ansible" {
       # the fun begins here
       "set -x",
       "sudo mkdir -p /tmp/ansible_chroot/var/lib/rpm",
-      "while ! yum --installroot=/tmp/ansible_chroot list installed centos-release; do wget -r -l1 -np -nd http://mirror.centos.org/centos/7/os/x86_64/Packages/ -P /tmp -A 'centos-release-7*.rpm'; sudo yum --installroot=/tmp/ansible_chroot -y install /tmp/centos-release-*.rpm; rm -rf /tmp/centos-release*.rpm; done",
-      "while ! yum --installroot=/tmp/ansible_chroot list installed epel-release; do sudo yum install --installroot=/tmp/ansible_chroot -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm; done",
+      "while ! sudo yum --installroot=/tmp/ansible_chroot list installed centos-release; do wget -r -l1 -np -nd http://mirror.centos.org/centos/7/os/x86_64/Packages/ -P /tmp -A 'centos-release-7*.rpm'; sudo yum --installroot=/tmp/ansible_chroot -y install /tmp/centos-release-*.rpm; rm -rf /tmp/centos-release*.rpm; done",
+      "while ! sudo yum --installroot=/tmp/ansible_chroot list installed epel-release; do sudo yum install --installroot=/tmp/ansible_chroot -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm; done",
       "sudo rpm --root=/tmp/ansible_chroot --import https://www.centos.org/keys/RPM-GPG-KEY-CentOS-7",
       "sudo rpm --root=/tmp/ansible_chroot --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7",
       "while ! sudo yum install --installroot=/tmp/ansible_chroot -y binutils bash ansible openssh-clients; do sleep 1; done",
@@ -200,7 +200,7 @@ resource "null_resource" "run_playbook_create" {
     when = "create"
     inline = [
       "set -ex",
-      "export ANSIBLE_SSL_PIPELINING=$(grep requiretty /etc/sudoers && echo 0 || echo 1)",
+      "export ANSIBLE_SSL_PIPELINING=$(sudo grep requiretty /etc/sudoers && echo 0 || echo 1)",
       "/tmp/ansible_chroot.sh ansible-playbook -f 20 -i ${local.ansible_inventory} ${element(data.template_file.playbook_full_path.*.rendered, count.index)} ${var.ansible_verbosity}"
     ]
   }
