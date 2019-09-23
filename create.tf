@@ -13,6 +13,7 @@ locals {
   playbook_dir = "/tmp/playbook_${local.myid}"
   ansible_inventory = "/tmp/playbook_${local.myid}/ansible.cfg"
   ssh_key = "/tmp/playbook_${local.myid}/ssh_key"
+  triggerson = "${length(var.triggerson) != 0 ? "${join(",", formatlist("%v=%v", keys(var.triggerson), values(var.triggerson)))}" : "${join(",", formatlist("%v=%v", "timestamp", timestamp()))}" }"
 }
 
 data "template_file" "playbook_full_path" {
@@ -23,7 +24,7 @@ data "template_file" "playbook_full_path" {
 
 resource "null_resource" "install_ansible" {
   triggers = {
-    timestamp = "${timestamp()}"
+    triggerson = "${local.triggerson}"
   }
   
   depends_on = [
@@ -69,7 +70,7 @@ resource "null_resource" "install_ansible" {
 
 resource "null_resource" "write_ssh_key" {
   triggers = {
-    timestamp = "${timestamp()}"
+    triggerson = "${local.triggerson}"
   }
 
   depends_on = [
@@ -107,7 +108,7 @@ resource "null_resource" "copy_ansible_playbook" {
   count = "${var.ansible_playbook_dir != "" ? 1 : 0}"
 
   triggers = {
-    timestamp = "${timestamp()}"
+    triggerson = "${local.triggerson}"
   }
 
   depends_on = [
@@ -152,7 +153,7 @@ EOF
 
 resource "null_resource" "copy_ansible_inventory" {
   triggers = {
-    timestamp = "${timestamp()}"
+    triggerson = "${local.triggerson}"
   }
 
   depends_on = [
@@ -184,8 +185,7 @@ resource "null_resource" "run_playbook_create" {
   
   # just run it every time, have ansible handle configuration drift
   triggers = {
-    triggerson = "${join(",", formatlist("%v=%v", keys(var.triggerson), values(var.triggerson)))}"
-    timestamp = "${timestamp()}"
+    triggerson = "${local.triggerson}"
   }
 
   connection {
@@ -220,8 +220,7 @@ resource "null_resource" "cleanup" {
   count = "${var.cleanup ? 1 : 0}"
   # clean up the playbooks and stuff
   triggers = {
-    triggerson = "${join(",", formatlist("%v=%v", keys(var.triggerson), values(var.triggerson)))}"
-    timestamp = "${timestamp()}"
+    triggerson = "${local.triggerson}"
   }
 
   connection {
