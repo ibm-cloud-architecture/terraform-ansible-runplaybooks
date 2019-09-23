@@ -66,7 +66,8 @@ resource "null_resource" "run_playbook_destroy" {
     when = "destroy"
     inline = [
       "set -ex",
-      "/tmp/ansible_chroot.sh ansible-playbook -i ${local.ansible_inventory} ${element(data.template_file.playbook_full_path_destroy.*.rendered, count.index)} ${var.ansible_verbosity}"
+      "export ANSIBLE_SSL_PIPELINING=$(grep requiretty /etc/sudoers && echo 0 || echo 1)",
+       "/tmp/ansible_chroot.sh ansible-playbook -f 20 -i ${local.ansible_inventory} ${element(data.template_file.playbook_full_path_destroy.*.rendered, count.index)} ${var.ansible_verbosity}"
     ]
   }
 
